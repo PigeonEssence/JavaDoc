@@ -1,0 +1,180 @@
+  @ author zeyu Wan
+  @ for java backstage management system:
+  
+  //====================
+  
+  Logging part:
+  first for the webpage, administer need a login page to login, this page need 2-3 calsses for membersheep information and other ways like verification code or third-part-login.
+
+  The key of login part is compare, compare the req. from user input to the data which we store in DataBase.there is an estimate, 
+  1. if the database can find input username,but the password is incorrect we Banned logging and return a sentence:" incorrect password";
+  2. if the database can not match the input user name, no need to check password, banned loggind and retuen :"incorrect username " 
+  3. all thins correct, then page jump to the backstage management system with input informaition by cookie.
+  
+  so for achieve this goal, we need a table "stuff" with stuff information. matching to the domain package.
+  
+  code is here :
+  //==================================================
+  private long id;
+
+	@Excel(name = "员工姓名")
+	private String userName;
+
+	@Excel(name = "密码")
+	private String passWord;
+
+	@Excel(name = "昵称")
+	private String nickName;
+  //===================================================
+ 
+    then set a setter and getter.
+    so the  front end ,the jsp form send parameters and "/login" to our controller, then controller mapping to controller
+  code is here:
+  //===================================================
+  	@ResponseBody
+	public AjaxResult login(HttpServletRequest req, HttpServletResponse resp, HttpSession session, String username,
+			String password, Integer remember) {
+
+		try {
+			/* 返回员工信息 */
+			Employee emp = service.login(username, password);
+			/* 员工信息放入session */
+			session.setAttribute("Emp_In_SESSION", emp);
+			/* 正确的才记住我 */
+			if (remember != null) {// 选了
+				/* 创建cookie */
+				Cookie c1 = new Cookie("username", username);
+				Cookie c2 = new Cookie("password", password);
+				/* 设置路径 */
+				c1.setPath("/");
+				c2.setPath("/");
+				// 生命周期
+				c1.setMaxAge(60 * 60 * 24 * 7);
+				c2.setMaxAge(60 * 60 * 24 * 7);
+				// 添加到浏览器端
+				resp.addCookie(c1);
+				resp.addCookie(c2);
+			} else {
+				Cookie[] cookies = req.getCookies();
+				for (Cookie cookie : cookies) {
+					String key = cookie.getName();
+					if ("username".equals(key) || "password".equals(key)) {
+						cookie.setMaxAge(0);
+						cookie.setPath("/");
+						resp.addCookie(cookie);
+					}
+				}
+			}
+			return new AjaxResult();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new AjaxResult(false, e.getMessage());
+		}
+	}
+  //=====================================================================================
+  in this part, we define service tobe IEmployeeService,
+  //=====================================================================================
+  public interface IEmployeeService {
+
+	Employee login(String username, String password) throws Exception; 
+  }
+  //=====================================================================================
+  
+  service is an interface so we need a EmployeeServiceImpl to minpament this function.
+  //=====================================================================================
+    @Service
+      /* 服务层实现 */
+    public class EmployeeServiceImpl implements IEmployeeService {
+    @Autowired
+	private EmployeeMapper mapper;
+
+	@Override
+	public Employee login(String username, String password) throws Exception {
+		Employee emp = mapper.findByUserName(username);
+		if (emp == null) {/* 用户名为空 */
+			throw new Exception("用户名不存在");
+		} else {/* 存在用户名 */
+			if (!password.equals(emp.getPassWord())) {/* 密码不同 */
+				throw new Exception("密码错误");
+			}
+		}
+		return emp;
+	}
+ }
+  //=====================================================================================
+  Service call mapper file to mapping req, so mapperwill find the specific SQL sentences in XML,
+  the focous in find the specific user by username first,so
+  //=====================================================================================
+/*mapper层，匹配mapper的XML实现对emp数据库的操作*/
+public interface EmployeeMapper {
+
+	Employee findByUserName(String username);
+
+}
+ //=====================================================================================
+ and XML file is :
+  //=====================================================================================
+  <!-- Employee findByUsername(String username); -->
+	<select id="findByUserName" resultType="employee">
+		select * from t_employee where username=#{username}
+	</select>
+   //=====================================================================================
+  
+  
+  there, we almost achieve our goal!
+  but think about it, how to avoid people logging jump out to logging page?
+  this time we need an Interceptor,if the  browserfind anyone visit backstage management system but cookie have no currect user information, then Interceptor also Banned 
+  then return to the logging page
+  
+  code is there:
+  //=========================================================================================
+  
+  /**
+ * 拦截器
+ * 
+ * @author Administrator
+ *
+ */
+public class MyInterceptor implements HandlerInterceptor {
+
+	@Override
+	public void afterCompletion(HttpServletRequest arg0, HttpServletResponse arg1, Object arg2, Exception arg3)
+			throws Exception {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void postHandle(HttpServletRequest arg0, HttpServletResponse arg1, Object arg2, ModelAndView arg3)
+			throws Exception {
+		// TODO Auto-generated method stub
+
+	}
+
+	/**
+	 * 请求到达处理器之前拦截
+	 */
+	@Override
+	public boolean preHandle(HttpServletRequest req, HttpServletResponse resp, Object arg2) throws Exception {
+		// 判断是否登录 没有登录就跳转到登录界面 如果登录了，放行
+		// 判断session中是否有emp信息
+		Object emp = req.getSession().getAttribute("Emp_In_SESSION");
+		if (emp == null) {// 没有登录
+			// 跳转到登录页面
+			resp.sendRedirect("/system/login");
+			return false;
+		}
+		return true;
+	}
+
+}
+//======================================================================================================================
+that is all for login page JAVA part the key is compare user name and password, also if possible we can made other way like Third-Part-Loggin like wechat logging in future.
+  
+  
+  
+  
+  
+  
+  
+  
