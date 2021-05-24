@@ -1,0 +1,27 @@
+At first, this program is using maven format:
+  src/main/java: this package is all java code files;
+    controller package: this package is all controller file, to mapping specific service function by requirement from front end
+    
+    domain package: it is all entity class including constructor, getter&setter
+    
+    interceptor package: intereptor function,implements HandlerInterceptor
+    
+    mapper package: this package including all mapper file, mapper name same with mapper in resources, for spring mapping
+    
+    query package:  encapsulation package, we make a new entity class for store datas what front end need for advanced query 
+    
+    service package: this package including all service interface to implament, 
+      ----service.impl package:
+    
+    uitl package: this package is all util function and util file, all function can be reused reduce code repeatability
+  
+  src/main/resources: this package ins all xml and properties files
+    mapper package: all SQL sentences in this package, mapper name is same with mapper package in java/mapper
+    other all properties is configuration Spring MVC, jdbc,log4j and Spring.
+    
+  src FileFolder:
+    main FileFolder:
+      other files import from source
+      webapp file is that the file need to configuration by tomcat,
+      all webpage file pic in this file
+      
