@@ -1,0 +1,22 @@
+This program based on SSM Framework set；
+SSM（Spring+SpringMVC+MyBatis） is a Framework set, agglomerated Spring，SpringMVC，and MyBatis.
+spring:
+  powerful on IoC and AoP:
+    In this program we can see Spring is a factory of bean,and foucous on IoC 
+    Central to the Spring Framework is its inversion of control (IoC) container this powerful fuction based on reflect in JAVA, 
+user no need to control the life cycle of Object in program by dependency injection, the beanfactory control. This way reduced coupling and programmer
+can spend much more time focous on oter powerful function.
+
+SpringMVC:
+  spring mvc is useing by develop Web program, easy to test(by annotations);
+  spring mvc is highly configurable, we useing this function to achieve Scan package path,Release static resource,File upload parser,
+and Configuring interceptors.
+  
+MyBatis:
+  MyBatis is a first class persistence framework with support for custom SQL,
+  MyBatis eliminates almost all of the JDBC code and manual setting of parameters and retrieval of results.  
+  MyBatis can use simple XML or Annotations for configuration and map primitives, 
+  Map interfaces and Java POJOs (Plain Old Java Objects) to database records. (from: https://mybatis.org/mybatis-3/index.html)
+ which means programmer no need to write SQL in JS file orother file, MyBatis can easy useing XML file to write SQL sentence and reduce the coupling
+  
+So all for me, the SSM Framework set is use for reduce the coupling and Increase development efficiency.
